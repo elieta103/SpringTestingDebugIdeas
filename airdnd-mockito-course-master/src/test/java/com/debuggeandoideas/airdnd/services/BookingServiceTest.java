@@ -11,8 +11,7 @@ import com.debuggeandoideas.airdnd.repositories.BookingRepository;
 import com.debuggeandoideas.airdnd.repositories.PaymentRepository;
 import com.debuggeandoideas.airdnd.utils.CurrencyConverter;
 import com.debuggeandoideas.airdnd.utils.DataDummy;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.*;
@@ -26,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BookingServiceTest {
 
     @Mock
@@ -46,7 +46,8 @@ public class BookingServiceTest {
     BookingService bookingService;
 
     @Test
-    @DisplayName("0. getAvailablePlaceCount() should works")
+    @Order(1)
+    @DisplayName("01. getAvailablePlaceCount() should works")
     void getAvailablePlaceCountTest() {
         when(roomService.findAllAvailableRooms()).thenReturn(DataDummy.defaultsRoomsList);
 
@@ -57,22 +58,34 @@ public class BookingServiceTest {
     }
 
     @Test
-    @DisplayName("1. booking(final BookingDto booking)  should works, Argument Matchers")
+    @Order(2)
+    @DisplayName("02. booking(final BookingDto booking)  should works, Argument Matchers")
     void bookingTest_1() {
-        var roomId = UUID.randomUUID().toString();
-        //when(roomService.findAvailableRoom(DataDummy.bookingRequest1)).thenReturn(DataDummy.defaultsRoomsList.get(0));
-        when(roomService.findAvailableRoom(any(BookingDto.class))).thenReturn(DataDummy.defaultsRoomsList.get(0));
+        // Opcion 1 Argumentos estrictos
+        // Si se mockea con : bookingRequest1 y se compara con bookingRequest2
+        //   Lanza una : org.mockito.exceptions.misusing.PotentialStubbingProblem:
+        //   Strict stubbing argument mismatch.
+        /*var roomId = UUID.randomUUID().toString();
+        when(roomService.findAvailableRoom(DataDummy.bookingRequest1)).thenReturn(DataDummy.defaultsRoomsList.get(0));
+        when(bookingRepository.save(DataDummy.bookingRequest1)).thenReturn(roomId);
 
-        //when(bookingRepository.save(DataDummy.bookingRequest1)).thenReturn(roomId);
+        var result = bookingService.booking(DataDummy.bookingRequest2);
+
+        assertEquals(roomId, result);*/
+
+        // Opcion 2 Matchers
+        var roomId = UUID.randomUUID().toString();
+        when(roomService.findAvailableRoom(any(BookingDto.class))).thenReturn(DataDummy.defaultsRoomsList.get(0));
         when(bookingRepository.save(any(BookingDto.class))).thenReturn(roomId);
 
-        var result = bookingService.booking(DataDummy.bookingRequest1);
+        var result = bookingService.booking(DataDummy.bookingRequest2);
 
         assertEquals(roomId, result);
     }
 
     @Test
-    @DisplayName("2. booking(final BookingDto booking)  should works, doReturn...when  VS when...thenReturn")
+    @Order(3)
+    @DisplayName("03. booking(final BookingDto booking)  should works, doReturn...when  VS when...thenReturn")
     void bookingTest_2() {
         var roomId = UUID.randomUUID().toString();
         //when(roomService.findAvailableRoom(DataDummy.bookingRequest1)).thenReturn(DataDummy.defaultsRoomsList.get(0));
@@ -88,7 +101,8 @@ public class BookingServiceTest {
 
 
     @Test
-    @DisplayName("3. booking(final BookingDto booking)  should works, verify")
+    @Order(4)
+    @DisplayName("04. booking(final BookingDto booking)  should works, verify")
     void bookingTest_3() {
         var roomId = UUID.randomUUID().toString();
         //when(roomService.findAvailableRoom(DataDummy.bookingRequest1)).thenReturn(DataDummy.defaultsRoomsList.get(0));
@@ -106,7 +120,8 @@ public class BookingServiceTest {
 
 
     @Test
-    @DisplayName("4. booking(final BookingDto booking)  should works, metodo void & verify")
+    @Order(5)
+    @DisplayName("05. booking(final BookingDto booking)  should works, metodo void & verify")
     void bookingTest_4() {
         var roomId = UUID.randomUUID().toString();
         //when(roomService.findAvailableRoom(DataDummy.bookingRequest1)).thenReturn(DataDummy.defaultsRoomsList.get(0));
@@ -129,7 +144,8 @@ public class BookingServiceTest {
     }
 
     @Test
-    @DisplayName("5. booking(final BookingDto booking)  should works, with exceptions. Unhappy path")
+    @Order(6)
+    @DisplayName("06. booking(final BookingDto booking)  should works, with exceptions. Unhappy path")
     void bookingExceptionTest() {
         doReturn(DataDummy.defaultsRoomsList.get(0))
                 .when(roomService)
@@ -152,7 +168,8 @@ public class BookingServiceTest {
 
 
     @Test
-    @DisplayName("6. booking(final BookingDto booking)  should works, with exceptions. Unhappy path. Conditions")
+    @Order(7)
+    @DisplayName("07. booking(final BookingDto booking)  should works, with exceptions. Unhappy path. Conditions")
     void bookingException2Test() {
         doReturn(DataDummy.defaultsRoomsList.get(0))
                 .when(roomService)
@@ -163,10 +180,10 @@ public class BookingServiceTest {
         // Recordar que cuando lanza una Exception en la linea 50, ya no se ejecuta nada de las lineas 53-57
 
         // Valuando parametros
-        // Es 120, porque : PRICE_ROOM * totalNights; 20 * 6 dias, del bookingRequestException 20 al 26
+        // Es 100, porque : PRICE_ROOM * totalNights; 20 * 5 dias, del bookingRequestException 20 al 25
         doThrow(new IllegalArgumentException("Max 3 guest"))
                 .when(paymentService)
-                .pay(eq(DataDummy.bookingRequestException), eq(120.00));
+                .pay(eq(DataDummy.bookingRequestException), eq(100.00));
 
 
         Executable executable = () -> bookingService.booking(DataDummy.bookingRequestException);
@@ -177,7 +194,8 @@ public class BookingServiceTest {
 
 
     @Test
-    @DisplayName("7. getAvailablePlaceCount() should works, multiple returns")
+    @Order(8)
+    @DisplayName("08. getAvailablePlaceCount() should works, multiple returns")
     void getAvailablePlaceCountMultipleReturnTest() {
         when(roomService.findAllAvailableRooms())
                 .thenReturn(DataDummy.defaultsRoomsList)
@@ -200,7 +218,8 @@ public class BookingServiceTest {
 
 
     @Test
-    @DisplayName("8. unbook() should works, Testing methods void")
+    @Order(9)
+    @DisplayName("09. unbook() should works, Testing methods void")
     void getUnBookTest() {
         var roomId1 = UUID.randomUUID().toString();
         var roomId2 = UUID.randomUUID().toString();
@@ -234,7 +253,8 @@ public class BookingServiceTest {
 
 
     @Test
-    @DisplayName("10 calculateInMxn() should works, Testing methods static")
+    @Order(10)
+    @DisplayName("10. calculateInMxn() should works, Testing methods static")
     void getCalculateInMxnTest() {
         try (MockedStatic<CurrencyConverter> mockedStatic = mockStatic(CurrencyConverter.class)) {
             final var expected = 900.0;
@@ -248,7 +268,8 @@ public class BookingServiceTest {
 
 
     @Test
-    @DisplayName("11 shouldCountAvailablePlaces() given...when...then")
+    @Order(11)
+    @DisplayName("11. shouldCountAvailablePlaces() given...when...then")
     void getShouldAvailablePlacesGivenWhenThenTest() {
         //Given
         BDDMockito.given(roomService.findAllAvailableRooms())

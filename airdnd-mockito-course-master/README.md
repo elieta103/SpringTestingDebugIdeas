@@ -1,4 +1,4 @@
-## Testing Debuggeando ideas 02
+## Testing Debuggeando ideas 01
 
 
 ### Importar dependencias
@@ -12,20 +12,23 @@
   - import static org.junit.jupiter.api.Assertions.*;
 ### Importar los metodos de Mockito
   - import static org.mockito.Mockito.*;
+### OK !! Buena practica
+  - Usar constructor privado en los Datos de prueba DataDummy
 ### CUIDADO! Mala practica
   - roomRepository = new RoomRepository();        Sin Mock 
   - roomRepository = mock(RoomRepository.class);  Con Mock
 
 
+
 ### Los valores default de Mockito
   - Cuando solo se hace mock(RoomRepository.class);
-  - Pero el test se omite : when(roomRepository.findAll()).thenReturn(DataDummy.defaultsRooms);
+  - Pero el test se omite : //when(roomRepository.findAll()).thenReturn(DataDummy.defaultsRooms);
   - Collections : []
   - booleans    : false
   - String      : null
   - Numeric     : 0
   - Object      : null
-
+ 
 ### Annotations
 - @Mock.- Mockea las dependencias
 - @InjectMocks.- Inyecta la classe con sus Mocks
@@ -39,9 +42,33 @@
     private RoomService roomService;    =   //roomService = new RoomService(roomRepository);
 ```
 
+### Sin Annotations and Con Annotations
+```
+public class RoomServiceTest {
+    private RoomRepository roomRepository;
+    private RoomService roomService;
+
+    @BeforeEach
+    void init(){
+      roomRepository = mock(RoomRepository.class);
+      roomService = new RoomService(roomRepository);
+    }
+```
+
+```
+@ExtendWith(MockitoExtension.class)
+public class RoomServiceTest {
+
+    @Mock
+    private RoomRepository roomRepository;
+
+    @InjectMocks
+    private RoomService roomService;
+```
 
 ### Argument Matchers
-  - Permiten testear metodos con argumentos :
+  - Permiten testear métodos con argumentos
+  - Solo se usan en los mock
   - Se pueden pasar los argumentos estrictos o con any()
   - when(roomService.findAvailableRoom(any(BookingDto.class))).thenReturn(DataDummy.defaultsRoomsList.get(0)); 
   - when(bookingRepository.save(any(BookingDto.class))).thenReturn(roomId);
@@ -80,24 +107,25 @@
   - assertThrows(IllegalArgumentException.class, executable);
   - Las 2 opciones son equivalentes.
     ```
+       // Opcion 1
        doThrow(new IllegalArgumentException("Max 3 guest"))
                 .when(paymentService)
                 .pay(any(BookingDto.class), anyDouble());
-        
+    
+       // Opcion 2
        when(paymentService.pay(any(BookingDto.class), anyDouble()))
                 .thenThrow(new IllegalArgumentException("Max 3 guest"));
 
+      Executable executable = () -> bookingService.booking(DataDummy.bookingRequestException);
+      assertThrows(IllegalArgumentException.class, executable);
     ```
 
-  - when(paymentService.pay(any(BookingDto.class), anyDouble()))
-  -    .thenThrow(new IllegalArgumentException("Max 3 guest")); 
-  - Executable executable = () -> bookingService.booking(DataDummy.bookingRequestException);
-  - assertThrows(IllegalArgumentException.class, executable);
-
   - Se puede condicionar el lanzamiento de la exception por medio de valores :
-  -         doThrow(new IllegalArgumentException("Max 3 guest"))
-  -              .when(paymentService)
-  -              .pay(eq(DataDummy.bookingRequestException), eq(120.00));
+```
+  doThrow(new IllegalArgumentException("Max 3 guest"))
+    .when(paymentService)
+    .pay(eq(DataDummy.bookingRequestException), eq(120.00));
+```
 
 ### Spy VS Mock
   - Los Spy, son un tipo de Mock, 
@@ -106,6 +134,19 @@
   - manda llamar al metodo real.
   - Si hay mucha restriccion con los Test, NUNCA USAR SPY
   - Podemos dejar metodos que no esten mockeados completamente.
+
+```
+@ExtendWith(MockitoExtension.class)
+public class RoomServiceTest {
+
+    private RoomRepository roomRepository;
+    private RoomService roomService;
+    
+    @BeforeEach
+    void init(){
+      roomRepository = spy(RoomRepository.class)
+    }
+```
 
 
 ### Mock con multiples return
@@ -117,7 +158,9 @@
   - Para validar un metodo void del service, se usa: Argument Capture
   - Permite guardar los argumentos con los que se llama un metodo
   - Permite hacer un assert para un metodo void con los  :
+    - ArgumentCaptor<TIPO_DATO> Estricto con el tipo de dato.
     - @Captor ArgumentCaptor<String> stringArgumentCaptor;
+      - Captura los argumentos con los que es llamado un Mock
 
 
 ### Testing metodos final

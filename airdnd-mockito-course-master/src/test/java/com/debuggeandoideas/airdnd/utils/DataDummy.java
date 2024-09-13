@@ -57,7 +57,7 @@ public class DataDummy {
     public static final BookingDto bookingRequestException = new BookingDto(
             "878789",
             LocalDate.of(2025,06, 20),
-            LocalDate.of(2025, 06, 26),
+            LocalDate.of(2025, 06, 25),
             2,
             true);
 

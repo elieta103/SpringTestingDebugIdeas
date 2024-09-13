@@ -31,13 +31,14 @@ public class RoomServiceTest {
     }
 
     @Test
-    @DisplayName("Should get all rooms available in roomRepository")
+    @DisplayName("00. Should get all rooms available in roomRepository")
     void findAllAvailableRooms(){
         when(roomRepository.findAll()).thenReturn(DataDummy.defaultsRooms);
-        var expected = 3;  //Avalilable = true
+        var expected = 3;  //Aquellas que tiene : Avalilable = true
         var result = roomService.findAllAvailableRooms();
 
         assertEquals(expected, result.size());
     }
+
 
 }
