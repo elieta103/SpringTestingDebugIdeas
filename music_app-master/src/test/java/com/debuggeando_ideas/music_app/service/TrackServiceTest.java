@@ -6,11 +6,13 @@ import com.debuggeando_ideas.music_app.entity.TrackEntity;
 import com.debuggeando_ideas.music_app.repository.TrackRepository;
 import com.debuggeando_ideas.music_app.service.impl.TrackServiceImpl;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 
+import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
@@ -32,32 +34,45 @@ public class TrackServiceTest extends SpecServiceTest {
 
 
     @Test
+    @Order(1)
     @DisplayName("01. findById should works")
     void findByIdTest(){
         when(trackRepositoryMock.findById(eq(VALID_ID))).thenReturn(Optional.of(DataDummy.TRACK_1));
         when(trackRepositoryMock.findById(eq(INVALID_ID))).thenReturn(Optional.empty());
 
         var result = trackService.findById(VALID_ID);
-        assertEquals(DataDummy.TRACK_1, result);
-
+        // Opcion 1
+        //assertEquals(DataDummy.TRACK_1, result);
         // Cuando no encuentra lanza una exception
-        assertThrows(NoSuchElementException.class, ()->trackService.findById(INVALID_ID));
+        //assertThrows(NoSuchElementException.class, ()->trackService.findById(INVALID_ID));
+
+        // Opcion 2
+        assertAll(
+                () -> assertEquals(DataDummy.TRACK_1, result),
+                () -> assertThrows(NoSuchElementException.class, ()->trackService.findById(INVALID_ID))
+        );
+
     }
 
     @Test
+    @Order(2)
     @DisplayName("02. getAll should works")
     void getAllTest(){
-        var expected = Set.of(DataDummy.TRACK_4, DataDummy.TRACK_2);
-
+        Set<TrackEntity> expected = Set.of(DataDummy.TRACK_4, DataDummy.TRACK_2);
         when(trackRepositoryMock.findAll()).thenReturn(expected);
-
         var result = trackService.getAll();
-
         assertEquals(expected.size(), result.size());
         assertEquals(expected, result);
+
+        Set<TrackEntity> expectedEmpty = Collections.EMPTY_SET;
+        when(trackRepositoryMock.findAll()).thenReturn(expectedEmpty);
+        var resultEmpty = trackService.getAll();
+        assertEquals(expectedEmpty.size(), resultEmpty.size());
+        assertEquals(expectedEmpty, resultEmpty);
     }
 
     @Test
+    @Order(3)
     @DisplayName("03. save should works")
     void saveTest(){
         var expected = DataDummy.TRACK_2;
@@ -73,6 +88,7 @@ public class TrackServiceTest extends SpecServiceTest {
     }
 
     @Test
+    @Order(4)
     @DisplayName("04. delete should works")
     void deleteTest(){
         trackService.delete(VALID_ID);
@@ -82,6 +98,7 @@ public class TrackServiceTest extends SpecServiceTest {
 
 
     @Test
+    @Order(5)
     @DisplayName("05. update should works")
     void updateTest(){
         var expected = DataDummy.TRACK_1;
@@ -97,6 +114,7 @@ public class TrackServiceTest extends SpecServiceTest {
     }
 
     @Test
+    @Order(6)
     @DisplayName("06. update should works, exception")
     void updateExceptionTest(){
         when(trackRepositoryMock.existsById(INVALID_ID)).thenReturn(false);
@@ -105,5 +123,9 @@ public class TrackServiceTest extends SpecServiceTest {
                 ()-> trackService.update(DataDummy.TRACK_1, INVALID_ID));
 
         verify(trackRepositoryMock, times(1)).existsById(eq(INVALID_ID));
+        verify(trackRepositoryMock, times(0)).findById(eq(INVALID_ID));
+        verify(trackRepositoryMock, times(0)).save(any(TrackEntity.class));
+
+
     }
 }

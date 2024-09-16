@@ -45,6 +45,10 @@ public class AlbumServiceImpl implements IAlbumService {
 	}
 
 	@Override
+	public AlbumDTO findById(Long id) {
+		return (AlbumDTO) JsonUtil.bodyMapper(this.albumRepository.findById(id).orElseThrow(), AlbumDTO.class);
+	}
+	@Override
 	public Set<AlbumDTO> getAll() {
 		Set<AlbumEntity> response = new HashSet<>();
 		this.albumRepository.findAll().forEach(response::add);
@@ -67,11 +71,6 @@ public class AlbumServiceImpl implements IAlbumService {
 		}
 		log.info("save {}", toSave.toString());
 		return (AlbumDTO) JsonUtil.bodyMapper(this.albumRepository.save(toSave), AlbumDTO.class);
-	}
-
-	@Override
-	public AlbumDTO findById(Long id) {
-		return (AlbumDTO) JsonUtil.bodyMapper(this.albumRepository.findById(id).orElseThrow(), AlbumDTO.class);
 	}
 
 	@Override

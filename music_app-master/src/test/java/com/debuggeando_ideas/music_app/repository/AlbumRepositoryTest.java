@@ -3,6 +3,7 @@ package com.debuggeando_ideas.music_app.repository;
 import com.debuggeando_ideas.music_app.DataDummy;
 import com.debuggeando_ideas.music_app.entity.AlbumEntity;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -21,6 +22,7 @@ public class AlbumRepositoryTest extends SpecRepositoryTest{
     private static final Long INVALID_ID = 900L;
 
     @Test
+    @Order(1)
     @DisplayName("01. findById Should works. Happy & Unhappy Path")
     void findByIdTest (){
         var result = albumRepository.findById(VALID_ID);
@@ -38,6 +40,7 @@ public class AlbumRepositoryTest extends SpecRepositoryTest{
     }
 
     @Test
+    @Order(2)
     @DisplayName("02. findAll Should works.")
     void findAllTest (){
         var result = (List<AlbumEntity>)albumRepository.findAll();
@@ -47,6 +50,7 @@ public class AlbumRepositoryTest extends SpecRepositoryTest{
     }
 
     @Test
+    @Order(3)
     @DisplayName("03. save Should works.")
     void saveTest () {
         var result = albumRepository.save(DataDummy.ALBUM);
@@ -56,6 +60,7 @@ public class AlbumRepositoryTest extends SpecRepositoryTest{
     }
 
     @Test
+    @Order(4)
     @DisplayName("04. findBetweenPrice Should works.")
     void findBetweenPriceTest () {
         var result = albumRepository.findByPriceBetween(270.00D, 271.00D);
@@ -65,7 +70,8 @@ public class AlbumRepositoryTest extends SpecRepositoryTest{
     }
 
     @Test
-    @DisplayName("05. deleteById Should works.")
+    @Order(5)
+    @DisplayName("05. deleteById Should works. void method")
     void deleteByIdTest () {
         var records = (List<AlbumEntity>)albumRepository.findAll();
         var totalRecords = records.size();

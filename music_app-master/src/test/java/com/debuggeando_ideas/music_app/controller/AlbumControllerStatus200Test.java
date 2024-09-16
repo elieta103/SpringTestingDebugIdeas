@@ -5,6 +5,7 @@ import com.debuggeando_ideas.music_app.service.IAlbumService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -46,6 +47,7 @@ public class AlbumControllerStatus200Test extends SpecAlbumController {
 
 
     @Test
+    @Order(1)
     @DisplayName("01. call findById should works")
     void findById() throws Exception {
         final var uri = RESOURCE_PATH + "/" + VALID_ID;
@@ -58,10 +60,11 @@ public class AlbumControllerStatus200Test extends SpecAlbumController {
                 .andExpect(jsonPath("$.autor").value(DataDummy.ALBUM_DTO.getAutor()))
                 .andExpect(jsonPath("$.price").value(DataDummy.ALBUM_DTO.getPrice()));
 
-        verify(this.albumServiceMock).findById(eq(VALID_ID));
+        verify(this.albumServiceMock, times(1)).findById(eq(VALID_ID));
     }
 
     @Test
+    @Order(2)
     @DisplayName("02. call save should works")
     void save() throws Exception {
         this.mockMvc.perform(
@@ -73,6 +76,7 @@ public class AlbumControllerStatus200Test extends SpecAlbumController {
     }
 
     @Test
+    @Order(3)
     @DisplayName("03. call update should works")
     void update() throws Exception {
         final var uri = RESOURCE_PATH + "/" + VALID_ID;
@@ -94,6 +98,7 @@ public class AlbumControllerStatus200Test extends SpecAlbumController {
     }
 
     @Test
+    @Order(4)
     @DisplayName("04. call delete should works")
     void delete() throws Exception {
         final var uri = RESOURCE_PATH + "/" + VALID_ID;

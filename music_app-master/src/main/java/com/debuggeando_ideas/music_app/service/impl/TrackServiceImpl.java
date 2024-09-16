@@ -28,6 +28,11 @@ public class TrackServiceImpl implements ITrackService {
 	}
 
 	@Override
+	public TrackEntity findById(Long id) {
+		return this.repository.findById(id).get();
+	}
+
+	@Override
 	public Set<TrackEntity> getAll() {
 		Set<TrackEntity> response = new HashSet<>();
 		this.repository.findAll().forEach(response::add);
@@ -38,11 +43,6 @@ public class TrackServiceImpl implements ITrackService {
 	public TrackEntity save(TrackEntity entity) {
 		log.info("save {}", entity.toString());
 		return this.repository.save(entity);
-	}
-
-	@Override
-	public TrackEntity findById(Long id) {
-		return this.repository.findById(id).get();
 	}
 
 	@Override

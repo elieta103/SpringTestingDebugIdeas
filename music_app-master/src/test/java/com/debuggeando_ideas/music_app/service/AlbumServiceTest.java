@@ -9,6 +9,7 @@ import com.debuggeando_ideas.music_app.repository.RecordCompanyRepository;
 import com.debuggeando_ideas.music_app.repository.TrackRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -41,6 +42,7 @@ public class AlbumServiceTest extends SpecServiceTest {
     }
 
     @Test
+    @Order(1)
     @DisplayName("01. findById should works! Happy path & Exception")
     void findByIdTest() {
         when(albumRepositoryMock.findById(VALID_ID)).thenReturn(Optional.of(DataDummy.ALBUM));
@@ -48,27 +50,32 @@ public class AlbumServiceTest extends SpecServiceTest {
 
         var result = albumService.findById(VALID_ID);
         assertEquals(DataDummy.ALBUM_DTO, result);
+        verify(albumRepositoryMock, times(1)).findById(eq(VALID_ID));
 
         // Cuando no encuentra lanza una exception
-        assertThrows(NoSuchElementException.class, () -> albumService.findById(INVALID_ID));
+        assertThrows(NoSuchElementException.class, () -> {
+            albumService.findById(INVALID_ID);
+            verify(albumRepositoryMock, times(1)).findById(eq(INVALID_ID));
+        });
 
-        verify(albumRepositoryMock, times(1)).findById(eq(VALID_ID));
-        verify(albumRepositoryMock, times(1)).findById(eq(INVALID_ID));
     }
 
 
     @Test
+    @Order(2)
     @DisplayName("02. getAll should works!, Exception ")
     void getAllExceptionTest() {
         when(albumRepositoryMock.findAll()).thenReturn(Collections.emptyList());
 
         // Cuando no encuentra lanza una exception
-        assertThrows(NoSuchElementException.class, () -> albumService.getAll());
-
-        verify(albumRepositoryMock, times(1)).findAll();
+        assertThrows(NoSuchElementException.class, () -> {
+            albumService.getAll();
+            verify(albumRepositoryMock, times(1)).findAll();
+        });
     }
 
     @Test
+    @Order(3)
     @DisplayName("03. getAll should works!, OK Data ")
     void getAllDataTest() {
         var expected = Set.of(DataDummy.ALBUM_DTO);
@@ -83,6 +90,7 @@ public class AlbumServiceTest extends SpecServiceTest {
     }
 
     @Test
+    @Order(4)
     @DisplayName("04. save should works!")
     void getSaveTest() {
         when(recordCompanyRepositoryMock.findById(anyString()))
@@ -99,17 +107,20 @@ public class AlbumServiceTest extends SpecServiceTest {
 
 
     @Test
+    @Order(5)
     @DisplayName("05. delete should works! Exception")
     void deleteExpressTest() {
         when(albumRepositoryMock.findById(INVALID_ID)).thenReturn(Optional.empty());
 
         // Cuando no encuentra lanza una exception
-        assertThrows(NoSuchElementException.class, () -> albumService.delete(INVALID_ID));
-
-        verify(albumRepositoryMock, times(1)).findById(eq(INVALID_ID));
+        assertThrows(NoSuchElementException.class, () -> {
+            albumService.delete(INVALID_ID);
+            verify(albumRepositoryMock, times(1)).findById(eq(INVALID_ID));
+        });
     }
 
     @Test
+    @Order(6)
     @DisplayName("06. delete should works! Happy path OK")
     void deleteOKTest() {
         when(albumRepositoryMock.findById(VALID_ID)).thenReturn(Optional.of(DataDummy.ALBUM));
@@ -123,17 +134,20 @@ public class AlbumServiceTest extends SpecServiceTest {
     }
 
     @Test
+    @Order(7)
     @DisplayName("07. update should works! Exception")
     void updateExceptionTest() {
         when(albumRepositoryMock.findById(VALID_ID)).thenReturn(Optional.empty());
 
         // Cuando no encuentra lanza una exception
-        assertThrows(NoSuchElementException.class, () -> albumService.delete(INVALID_ID));
-
-        verify(albumRepositoryMock, times(1)).findById(eq(INVALID_ID));
+        assertThrows(NoSuchElementException.class, () -> {
+            albumService.delete(INVALID_ID);
+            verify(albumRepositoryMock, times(1)).findById(eq(INVALID_ID));
+        });
     }
 
     @Test
+    @Order(8)
     @DisplayName("08. update should works! OK")
     void updateOkTest() {
         when(albumRepositoryMock.findById(VALID_ID)).thenReturn(Optional.of(DataDummy.ALBUM));
@@ -141,22 +155,26 @@ public class AlbumServiceTest extends SpecServiceTest {
 
         var result = albumService.update(DataDummy.ALBUM_DTO, VALID_ID);
 
-        assertFalse(Objects.isNull(result));
+        assertTrue(Objects.nonNull(result));
         verify(albumRepositoryMock, times(2)).findById(eq(VALID_ID));
         verify(albumRepositoryMock, times(1)).save(any(AlbumEntity.class));
 
     }
 
     @Test
+    @Order(9)
     @DisplayName("09. findBetweenPrice, Exception")
     void findBetweenPriceExceptionTest() {
         when(albumRepositoryMock.findByPriceBetween(anyDouble(), anyDouble())).thenReturn(Collections.emptySet());
         assertThrows(NoSuchElementException.class,
-                () -> albumService.findBetweenPrice(anyDouble(), anyDouble()));
-        verify(albumRepositoryMock, times(1)).findByPriceBetween(anyDouble(), anyDouble());
+                () -> {
+                    albumService.findBetweenPrice(anyDouble(), anyDouble());
+                    verify(albumRepositoryMock, times(1)).findByPriceBetween(anyDouble(), anyDouble());
+                });
     }
 
     @Test
+    @Order(10)
     @DisplayName("10. findBetweenPrice, OK")
     void findBetweenPriceOKTest() {
         when(albumRepositoryMock.findByPriceBetween(anyDouble(), anyDouble())).thenReturn(Set.of(DataDummy.ALBUM));
@@ -166,6 +184,7 @@ public class AlbumServiceTest extends SpecServiceTest {
     }
 
     @Test
+    @Order(11)
     @DisplayName("11. addTrack, Exception ")
     void addTrackExceptionTest() {
         when(albumRepositoryMock.findById(INVALID_ID)).thenReturn(Optional.empty());
@@ -177,6 +196,7 @@ public class AlbumServiceTest extends SpecServiceTest {
     }
 
     @Test
+    @Order(12)
     @DisplayName("12. addTrack, OK")
     void addTrackOkTest() {
         when(albumRepositoryMock.findById(VALID_ID)).thenReturn(Optional.of(DataDummy.ALBUM));
@@ -191,6 +211,7 @@ public class AlbumServiceTest extends SpecServiceTest {
     }
 
     @Test
+    @Order(13)
     @DisplayName("13. removeTrack, Exception ")
     void removeTrackExceptionTest() {
         when(albumRepositoryMock.existsById(INVALID_ID)).thenReturn(false);
@@ -202,6 +223,7 @@ public class AlbumServiceTest extends SpecServiceTest {
     }
 
     @Test
+    @Order(14)
     @DisplayName("14. removeTrack, OK")
     void removeTrackOkTest() {
         when(albumRepositoryMock.findById(VALID_ID)).thenReturn(Optional.of(DataDummy.ALBUM));

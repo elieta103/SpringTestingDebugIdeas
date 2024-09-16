@@ -5,6 +5,7 @@ import com.debuggeando_ideas.music_app.service.IAlbumService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -46,8 +47,8 @@ public class AlbumControllerStatus400Test extends SpecAlbumController {
 
     }
 
-
     @Test
+    @Order(1)
     @DisplayName("01. call findById should response 404")
     void findById() throws Exception {
         final var uri = RESOURCE_PATH + "/" + INVALID_ID;
@@ -59,6 +60,7 @@ public class AlbumControllerStatus400Test extends SpecAlbumController {
     }
 
     @Test
+    @Order(2)
     @DisplayName("02. call save should response 400")
     void save() throws Exception {
         this.mockMvc.perform(
@@ -72,9 +74,12 @@ public class AlbumControllerStatus400Test extends SpecAlbumController {
                 .andExpect(jsonPath("$.errors").isMap())
                 .andExpect(jsonPath("$.errors.name").value("Must start with Upper"))
                 .andExpect(jsonPath("$.errors.autor").value("Must start with Upper"));
+
+        verify(this.albumServiceMock, times(0)).save(eq(DataDummy.ALBUM_DTO_INVALID));
     }
 
     @Test
+    @Order(3)
     @DisplayName("03. call update should response 404")
     void update() throws Exception {
         final var uri = RESOURCE_PATH + "/" + INVALID_ID;
@@ -93,6 +98,7 @@ public class AlbumControllerStatus400Test extends SpecAlbumController {
     }
 
     @Test
+    @Order(4)
     @DisplayName("04. call delete should response 404")
     void delete() throws Exception {
         final var uri = RESOURCE_PATH + "/" + INVALID_ID;
